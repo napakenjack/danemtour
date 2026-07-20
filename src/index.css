@@ -1,111 +1,92 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+@import 'tailwindcss';
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+@theme {
+  --font-display: 'Golos Text', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Brand — фиолетовый (фирменный цвет клиента) */
+  --color-brand-50: #faf3ff;
+  --color-brand-100: #f1e0ff;
+  --color-brand-200: #e0bfff;
+  --color-brand-300: #cb93ff;
+  --color-brand-400: #b565ff;
+  --color-brand-500: #aa3bff;
+  --color-brand-600: #8e1ee8;
+  --color-brand-700: #6f17b5;
+  --color-brand-800: #521088;
+  --color-brand-900: #380b5f;
+  --color-brand-950: #230740;
 
-  @media (max-width: 1024px) {
+  /* Sunset — тёплый акцент для акций/горящих туров */
+  --color-sunset-50: #fff3ec;
+  --color-sunset-100: #ffe3d1;
+  --color-sunset-200: #ffc7a3;
+  --color-sunset-300: #ffa46c;
+  --color-sunset-400: #ff8142;
+  --color-sunset-500: #ff6a2c;
+  --color-sunset-600: #e84f14;
+  --color-sunset-700: #bd3b0c;
+  --color-sunset-800: #8f2c0a;
+  --color-sunset-900: #5f1e08;
+
+  /* Ink — тёплые нейтральные тона с фиолетовым подтоном */
+  --color-ink-50: #faf9fc;
+  --color-ink-100: #f1eff6;
+  --color-ink-200: #e3e0ec;
+  --color-ink-300: #c9c4d6;
+  --color-ink-400: #9c96af;
+  --color-ink-500: #6f6884;
+  --color-ink-600: #56506a;
+  --color-ink-700: #413c52;
+  --color-ink-800: #2c283a;
+  --color-ink-900: #1a1724;
+  --color-ink-950: #100e17;
+
+  --shadow-soft: 0 20px 45px -20px rgba(56, 11, 95, 0.35);
+  --shadow-card: 0 12px 30px -12px rgba(26, 23, 36, 0.18);
+
+  --container-content: 1280px;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-ink-50 text-ink-700 font-sans antialiased;
     font-size: 16px;
   }
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display text-ink-950;
   }
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+  ::selection {
+    @apply bg-brand-200 text-brand-900;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-500;
   }
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-}
-
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+@layer utilities {
+  .content-container {
+    @apply mx-auto w-full max-w-(--container-content) px-5 sm:px-8 lg:px-10;
   }
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
-}
-p {
-  margin: 0;
-}
-
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
 }

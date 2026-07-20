@@ -1,75 +1,111 @@
-# React + TypeScript + Vite
+# danem tour — сайт турагентства
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Vite + React 19 + TypeScript + Tailwind CSS v4 + Supabase. MVP на русском языке.
 
-Currently, two official plugins are available:
+## Стек
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Frontend:** React 19, React Router, TanStack Query, React Hook Form + Zod, Tailwind CSS v4, motion (framer-motion), lucide-react.
+- **Backend:** Supabase (Postgres + RLS, без кастомного бэкенда) + одна Edge Function для email-уведомлений.
+- **Деплой:** Cloudflare Pages, автодеплой из GitHub (`main`).
 
-## React Compiler
+## Локальный запуск
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install
+cp .env.example .env   # заполнить своими значениями (см. ниже)
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Дальше:
+- `npm run build` — прод-сборка (проверяется typecheck + vite build).
+- `npm run lint` — ESLint.
+- `npx tsc --noEmit` — только typecheck.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 1. Supabase
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Вариант А — быстрый (через Dashboard, без CLI)
 
+1. Создать проект на [supabase.com](https://supabase.com) (регион ближе к Алматы — Singapore).
+2. В **SQL Editor** выполнить по порядку файлы из `supabase/migrations/`:
+   - `20260720120000_init_schema.sql` — таблицы и RLS.
+   - `20260720120005_seed_content.sql` — туры-заглушки, отзывы, FAQ, статьи блога (замените на реальные данные, когда клиент их пришлёт).
+3. **Settings → API** → скопировать `Project URL` и `anon public` ключ в `.env`:
+   ```
+   VITE_SUPABASE_URL=https://xxxx.supabase.co
+   VITE_SUPABASE_ANON_KEY=...
+   ```
+
+### Вариант Б — через Supabase CLI (миграции воспроизводимы из репозитория)
+
+```bash
+npx supabase login
+npx supabase link --project-ref <ваш-project-ref>
+npx supabase db push          # применит все миграции из supabase/migrations
+npx supabase gen types typescript --project-id <ваш-project-ref> > src/shared/types/database.types.ts
 ```
+
+`src/shared/types/database.types.ts` сейчас написан вручную по схеме миграций — после первого `gen types` замените его сгенерированным (он будет идентичен по структуре).
+
+### Локальная разработка с Docker (опционально)
+
+```bash
+npx supabase start   # поднимет Postgres/Studio локально, применит миграции
+```
+
+Studio будет на `http://127.0.0.1:54323`, URL и anon key для `.env` покажет команда `npx supabase status`.
+
+## 2. Email-уведомления о заявках (Resend + Edge Function)
+
+Заявки с сайта всегда сохраняются в таблицу `leads` — это основной канал. Письмо на
+`danemtour@gmail.com` — дублирующее уведомление через Database Webhook + Edge Function.
+
+1. Зарегистрироваться на [resend.com](https://resend.com) (бесплатный тариф достаточен), получить API-ключ.
+2. Задеплоить функцию:
+   ```bash
+   npx supabase functions deploy notify-lead --project-ref <ваш-project-ref>
+   npx supabase secrets set RESEND_API_KEY=re_xxxxxxxx --project-ref <ваш-project-ref>
+   ```
+3. В Supabase Dashboard → **Database → Webhooks** → Create a new hook:
+   - Table: `leads`, Events: `Insert`.
+   - Type: `Supabase Edge Functions` → выбрать `notify-lead`.
+   - Добавить заголовок `Authorization: Bearer <anon key>` (функция по умолчанию проверяет JWT).
+4. Проверить: оставить тестовую заявку на сайте → письмо должно прийти на `danemtour@gmail.com`.
+
+Пока используется тестовый отправитель `onboarding@resend.dev` — доставляемость ограничена.
+Для продакшена стоит подключить домен клиента в Resend (когда появится домен, см. ниже) и
+поменять `LEAD_FROM_EMAIL` секретом.
+
+## 3. Деплой: GitHub → Cloudflare Pages (автодеплой)
+
+Репозиторий уже подключён: `git@github.com:napakenjack/danemtour.git`, ветка `main` — прод.
+
+1. [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages → Create → Pages → Connect to Git**.
+2. Выбрать репозиторий `danemtour`, ветку `main`.
+3. Build settings: framework preset **Vite**, build command `npm run build`, output directory `dist`.
+4. **Settings → Environment variables** — добавить для Production и Preview:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+5. Deploy. После этого каждый `git push` в `main` — новый прод-деплой, каждый PR — preview-ссылка.
+
+Кастомный домен (когда клиент его купит): Pages → **Custom domains** → добавить домен.
+
+## Что уже сделано (MVP)
+
+- Разделы: Главная, Каталог туров, Карточка тура, О компании, Отзывы, FAQ, Акции, Блог, Контакты.
+- Форма заявки (сохраняется в Supabase, дублируется письмом через Resend).
+- Подписка на рассылку (таблица `newsletter_subscribers`).
+- Кнопки WhatsApp/Instagram, плавающая кнопка WhatsApp.
+- 7 туров-заглушек (Турция, ОАЭ, Египет, Вьетнам, Сингапур, Сейшелы, Европа) — фото со стоков Unsplash.
+
+## Что осталось (сознательно вне MVP, см. договорённости с клиентом)
+
+- **Онлайн-оплата (Kaspi Pay)** — отложена до получения API от Kaspi.
+- **Реальные логотип и фото** — сейчас текстовый логотип-плейсхолдер и стоковые фото, заменить в
+  `src/shared/ui/Logo.tsx` и `image_url`/`cover_image_url` в таблицах `tours`/`blog_posts`.
+- **Мультиязычность (каз/англ)** — сайт сейчас только на русском, структура позволяет добавить
+  i18n позже без переделки компонентов.
+- **Интеграция с Tourvisor** — туры сейчас вручную в таблице `tours`, синхронизацию с Tourvisor
+  API нужно проектировать отдельно (скорее всего — через Edge Function по расписанию).
+- **CRM** — заявки сейчас в Supabase + email, подключение amoCRM/Bitrix24 и т.п. — когда клиент
+  определится с системой.
+- Реальный адрес офиса, часы работы — уточнить у клиента и добавить в `ContactsPage.tsx`.
