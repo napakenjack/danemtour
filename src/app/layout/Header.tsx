@@ -2,15 +2,17 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, NavLink } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
-import { Menu, MessageCircle, X } from 'lucide-react';
+import { Menu, MessageCircle, User, X } from 'lucide-react';
 import { Logo } from '@/shared/ui/Logo';
 import { Button } from '@/shared/ui/Button';
 import { NAV_LINKS } from '@/app/layout/navConfig';
 import { whatsappLink } from '@/shared/config/site';
 import { cn } from '@/shared/lib/cn';
+import { useAuth } from '@/app/auth/AuthContext';
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const { user, isAdmin, signOut } = useAuth();
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
@@ -56,6 +58,39 @@ export function Header() {
               Подобрать тур
             </Button>
           </Link>
+
+          {user ? (
+            <details className="relative">
+              <summary className="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-full border border-ink-200 text-ink-700 transition-colors hover:border-ink-950 hover:text-ink-950 [&::-webkit-details-marker]:hidden">
+                <User size={18} />
+              </summary>
+              <div className="absolute right-0 top-12 z-50 w-56 rounded-2xl border border-ink-100 bg-white p-2 shadow-float">
+                <p className="truncate px-3 py-2 text-xs text-ink-400">{user.email}</p>
+                <Link to="/account" className="block rounded-xl px-3 py-2 text-sm text-ink-700 hover:bg-ink-100">
+                  Личный кабинет
+                </Link>
+                {isAdmin && (
+                  <Link to="/admin" className="block rounded-xl px-3 py-2 text-sm text-ink-700 hover:bg-ink-100">
+                    CRM
+                  </Link>
+                )}
+                <button
+                  type="button"
+                  onClick={() => void signOut()}
+                  className="block w-full rounded-xl px-3 py-2 text-left text-sm text-sunset-600 hover:bg-sunset-50"
+                >
+                  Выйти
+                </button>
+              </div>
+            </details>
+          ) : (
+            <Link to="/login">
+              <Button variant="outline" size="sm">
+                <User size={16} />
+                Войти
+              </Button>
+            </Link>
+          )}
         </div>
 
         <button
@@ -127,6 +162,39 @@ export function Header() {
                   Подобрать тур
                 </Button>
               </Link>
+
+              {user ? (
+                <>
+                  <Link to="/account" onClick={() => setOpen(false)}>
+                    <Button variant="outlineLight" className="w-full">
+                      Личный кабинет
+                    </Button>
+                  </Link>
+                  {isAdmin && (
+                    <Link to="/admin" onClick={() => setOpen(false)}>
+                      <Button variant="outlineLight" className="w-full">
+                        CRM
+                      </Button>
+                    </Link>
+                  )}
+                  <Button
+                    variant="ghost"
+                    className="w-full text-white/70 hover:bg-white/10 hover:text-white"
+                    onClick={() => {
+                      setOpen(false);
+                      void signOut();
+                    }}
+                  >
+                    Выйти
+                  </Button>
+                </>
+              ) : (
+                <Link to="/login" onClick={() => setOpen(false)}>
+                  <Button variant="outlineLight" className="w-full">
+                    Войти
+                  </Button>
+                </Link>
+              )}
             </div>
           </motion.div>
         )}

@@ -11,6 +11,10 @@ interface CreateLeadInput extends LeadFormValues {
 export function useCreateLead() {
   return useMutation({
     mutationFn: async ({ tourId, tourTitle, source, ...values }: CreateLeadInput) => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       const { error } = await supabase.from('leads').insert({
         name: values.name,
         phone: values.phone,
@@ -18,6 +22,7 @@ export function useCreateLead() {
         tour_id: tourId ?? null,
         tour_title: tourTitle ?? null,
         source: source ?? 'website',
+        user_id: user?.id ?? null,
       });
       if (error) throw error;
     },

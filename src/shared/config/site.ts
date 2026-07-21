@@ -1,6 +1,6 @@
 export const SITE = {
-  name: 'danem tour',
-  tagline: 'Туристическое агентство в Алматы',
+  name: 'Danem tour',
+  tagline: 'Туристическое агентство в Алматы, Горящие тури и не только! Тут вы узнаете актуальные цены по турам',
   city: 'Алматы',
   phoneDisplay: '+7 707 776 65 57',
   phoneRaw: '87077766557',
@@ -8,6 +8,7 @@ export const SITE = {
   email: 'danemtour@gmail.com',
   instagramHandle: 'danemtour',
   instagramUrl: 'https://instagram.com/danemtour',
+  whatsappGroupUrl: 'https://chat.whatsapp.com/Cem352gXhrDJ6KzisJypC3?s=sw&p=i&ilr=0&amv=0',
   yearsOnMarket: 7,
 } as const;
 

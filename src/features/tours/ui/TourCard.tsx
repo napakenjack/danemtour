@@ -1,12 +1,32 @@
-import { Link } from 'react-router-dom';
-import { ArrowUpRight, CalendarDays } from 'lucide-react';
+import type { MouseEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowUpRight, CalendarDays, Heart } from 'lucide-react';
 import type { Tour } from '@/shared/types/database.types';
 import { Badge } from '@/shared/ui/Badge';
 import { StarRating } from '@/shared/ui/StarRating';
 import { formatDuration, formatPrice, segmentLabels } from '@/shared/lib/format';
 import { Reveal } from '@/shared/ui/Reveal';
+import { cn } from '@/shared/lib/cn';
+import { useAuth } from '@/app/auth/AuthContext';
+import { useFavoriteIds, useToggleFavorite } from '@/features/favorites/api/useFavorites';
 
 export function TourCard({ tour, index = 0 }: { tour: Tour; index?: number }) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { data: favoriteIds } = useFavoriteIds();
+  const { mutate: toggleFavorite, isPending: isTogglingFavorite } = useToggleFavorite();
+  const isFavorite = favoriteIds?.has(tour.id) ?? false;
+
+  const handleToggleFavorite = (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    toggleFavorite({ tourId: tour.id, isFavorite });
+  };
+
   return (
     <Reveal delay={Math.min(index, 4) * 0.06} className="h-full">
       <Link
@@ -31,9 +51,26 @@ export function TourCard({ tour, index = 0 }: { tour: Tour; index?: number }) {
             <Badge variant="outline">{segmentLabels[tour.segment] ?? tour.segment}</Badge>
           </div>
 
-          <span className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-all duration-300 group-hover:bg-white group-hover:text-ink-950">
-            <ArrowUpRight size={18} />
-          </span>
+          <div className="absolute right-3 top-3 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleToggleFavorite}
+              disabled={isTogglingFavorite}
+              aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
+              aria-pressed={isFavorite}
+              className={cn(
+                'flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-sm transition-all duration-300 disabled:opacity-60',
+                isFavorite
+                  ? 'bg-white text-sunset-500'
+                  : 'bg-white/15 text-white hover:bg-white hover:text-sunset-500'
+              )}
+            >
+              <Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />
+            </button>
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-all duration-300 group-hover:bg-white group-hover:text-ink-950">
+              <ArrowUpRight size={18} />
+            </span>
+          </div>
 
           <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">
             <div>

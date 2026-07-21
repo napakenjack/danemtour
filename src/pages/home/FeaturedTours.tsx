@@ -64,13 +64,33 @@ export function FeaturedTours() {
           </div>
         )}
 
+        {/* Мобильная версия — статичная сетка 2 колонки (горизонтальный скролл на тач-устройствах
+            свайпался нестабильно), карточки компактнее за счёт узких колонок. */}
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:hidden">
+          {isLoading &&
+            Array.from({ length: 4 }).map((_, i) => <TourCardSkeleton key={i} />)}
+
+          {!isLoading &&
+            !isError &&
+            featured?.slice(0, 4).map((tour, i) => <TourCard key={tour.id} tour={tour} index={i} />)}
+        </div>
+
+        {!isLoading && !isError && featured && featured.length > 0 && (
+          <Link to="/tours" className="mt-4 block sm:hidden">
+            <Button variant="outline" className="w-full">
+              Посмотреть весь список
+            </Button>
+          </Link>
+        )}
+
+        {/* Планшет/десктоп — горизонтальная карусель со стрелками, без изменений. */}
         <div
           ref={scrollerRef}
-          className="no-scrollbar snap-x-mandatory mt-8 flex gap-5 overflow-x-auto px-1 pt-4 pb-8"
+          className="no-scrollbar snap-x-mandatory mt-8 hidden gap-5 overflow-x-auto px-1 pt-4 pb-8 sm:flex"
         >
           {isLoading &&
             Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="w-[78vw] shrink-0 sm:w-[320px]">
+              <div key={i} className="w-[320px] shrink-0">
                 <TourCardSkeleton />
               </div>
             ))}
@@ -78,7 +98,7 @@ export function FeaturedTours() {
           {!isLoading &&
             !isError &&
             featured?.map((tour, i) => (
-              <div key={tour.id} className="snap-center-item w-[78vw] shrink-0 sm:w-[320px]">
+              <div key={tour.id} className="snap-center-item w-[320px] shrink-0">
                 <TourCard tour={tour} index={i} />
               </div>
             ))}
