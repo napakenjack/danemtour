@@ -1,95 +1,169 @@
-import { Link } from 'react-router-dom';
-import { motion } from 'motion/react';
-import { MapPinned, MessageCircle, Sparkles, Star } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { MessageCircle, Sparkles, Star } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
+import { BookingWidget } from '@/features/leads/ui/BookingWidget';
 import { SITE, whatsappLink } from '@/shared/config/site';
 
 const DESTINATIONS = ['Турция', 'ОАЭ', 'Египет', 'Вьетнам', 'Сингапур', 'Сейшелы', 'Европа'];
 
-export function Hero() {
+const HERO_FALLBACK_IMAGE = '/images/hero-cover.png';
+const HERO_MAX_SLIDES = 12;
+const HERO_SLIDE_INTERVAL = 6000;
+
+function probeImage(src: string) {
+  return new Promise<boolean>((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = src;
+  });
+}
+
+/** Numbered hero-cover-1.png, hero-cover-2.png, ... picked up automatically; stops at the first gap. */
+function useHeroImages() {
+  const [images, setImages] = useState<string[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      const candidates = Array.from({ length: HERO_MAX_SLIDES }, (_, i) => `/images/hero-cover-${i + 1}.png`);
+      const found = await Promise.all(candidates.map(probeImage));
+      const sequential: string[] = [];
+      for (let i = 0; i < found.length; i++) {
+        if (!found[i]) break;
+        sequential.push(candidates[i]);
+      }
+      if (!cancelled) setImages(sequential.length > 0 ? sequential : [HERO_FALLBACK_IMAGE]);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return images;
+}
+
+function HeroBackground({ images }: { images: string[] }) {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (images.length < 2) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const id = setInterval(() => {
+      setIndex((i) => (i + 1) % images.length);
+    }, HERO_SLIDE_INTERVAL);
+    return () => clearInterval(id);
+  }, [images.length]);
+
   return (
-    <section className="relative overflow-hidden pb-20 pt-14 sm:pb-28 sm:pt-20">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-brand-200/50 blur-3xl"
+    <AnimatePresence>
+      <motion.img
+        key={images[index]}
+        src={images[index]}
+        alt="Путешествие мечты"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 1.1, ease: 'easeInOut' }}
+        className="absolute inset-0 -z-10 h-full w-full object-cover"
       />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-24 top-40 h-80 w-80 rounded-full bg-sunset-200/50 blur-3xl"
-      />
+    </AnimatePresence>
+  );
+}
 
-      <div className="content-container relative grid gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-4 py-1.5 text-sm font-medium text-brand-700">
-            <Sparkles size={15} />
-            {SITE.yearsOnMarket} лет организуем путешествия из Алматы
-          </span>
+export function Hero() {
+  const images = useHeroImages();
 
-          <h1 className="text-[2.6rem] leading-[1.05] tracking-tight sm:text-6xl lg:text-[3.6rem]">
-            Хочу в отпуск?
-            <br />
-            <span className="text-brand-500">Мы уже подбираем</span> тур.
-          </h1>
+  return (
+    <section className="relative bg-white pb-24 pt-6 sm:pb-28 sm:pt-8">
+      <div className="mx-auto w-full max-w-(--container-wide) px-0 sm:px-8 lg:px-10">
+        <div className="relative isolate flex min-h-[240px] flex-col justify-end overflow-hidden bg-ink-950 text-white sm:min-h-[540px] sm:rounded-[2.5rem] lg:min-h-[620px]">
+          {images && <HeroBackground images={images} />}
+          <div className="absolute inset-0 -z-10 hidden bg-gradient-to-b from-ink-950/70 via-ink-950/15 to-ink-950/85 sm:block" />
 
-          <p className="mt-6 max-w-lg text-lg leading-relaxed text-ink-500">
-            Пакетные туры, авиабилеты, визы, страховки и MICE — берём заботы на себя, вы
-            занимаетесь только сборами. Работаем честно, с эмпатией и без навязчивости.
-          </p>
-
-          <div className="mt-9 flex flex-wrap gap-3">
-            <Link to="/tours">
-              <Button size="lg">Подобрать тур</Button>
-            </Link>
-            <a href={whatsappLink('Здравствуйте! Хочу подобрать тур.')} target="_blank" rel="noreferrer">
-              <Button variant="whatsapp" size="lg">
-                <MessageCircle size={18} />
-                Написать в WhatsApp
-              </Button>
-            </a>
-          </div>
-
-          <div className="mt-10 flex flex-wrap items-center gap-2 text-sm text-ink-500">
-            <MapPinned size={16} className="text-brand-500" />
-            <span>Направления:</span>
-            {DESTINATIONS.map((d, i) => (
-              <span key={d} className="text-ink-700">
-                {d}
-                {i < DESTINATIONS.length - 1 && <span className="text-ink-300"> · </span>}
+          <div className="relative hidden flex-col items-center px-5 pb-16 pt-20 text-center sm:flex sm:pb-20 sm:pt-24">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="mb-5 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/10 px-4 py-2 backdrop-blur-sm"
+            >
+              <div className="flex -space-x-0.5">
+                {[1, 2, 3].map((i) => (
+                  <Star key={i} size={14} className="fill-sunset-400 text-sunset-400" />
+                ))}
+              </div>
+              <span className="text-sm font-medium text-white/90">
+                4.9 из 5 · {SITE.yearsOnMarket} лет организуем путешествия из Алматы
               </span>
-            ))}
-          </div>
-        </motion.div>
+            </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-          className="relative"
-        >
-          <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-soft sm:aspect-[5/6]">
-            <img
-              src="https://images.unsplash.com/photo-1527142879-95b61a0b8226?auto=format&fit=crop&w=1000&q=80"
-              alt="Путешествие мечты"
-              className="h-full w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-ink-950/50 via-transparent to-transparent" />
-          </div>
+            <motion.h1
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
+              className="display-hero text-[2.4rem] leading-[0.96] sm:text-[3.6rem] lg:text-[4.4rem]"
+            >
+              Хочу
+              <br />
+              <span className="text-brand-300">в отпуск?</span>
+            </motion.h1>
 
-          <div className="absolute -bottom-6 -left-6 flex items-center gap-3 rounded-2xl bg-white/95 px-5 py-4 shadow-soft backdrop-blur sm:-left-10">
-            <div className="flex -space-x-1">
-              {[1, 2, 3].map((i) => (
-                <Star key={i} size={16} className="fill-sunset-400 text-sunset-400" />
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-4 max-w-lg text-base leading-relaxed text-white/75 sm:text-lg"
+            >
+              Мы уже подбираем тур. Пакетные туры, авиабилеты, визы, страховки и MICE — берём заботы
+              на себя, вы занимаетесь только сборами.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-6"
+            >
+              <a href={whatsappLink('Здравствуйте! Хочу подобрать тур.')} target="_blank" rel="noreferrer">
+                <Button variant="whatsapp" size="lg">
+                  <MessageCircle size={18} />
+                  Написать в WhatsApp
+                </Button>
+              </a>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-7 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm text-white/60"
+            >
+              <Sparkles size={15} className="text-brand-300" />
+              <span>Направления:</span>
+              {DESTINATIONS.map((d, i) => (
+                <span key={d}>
+                  {d}
+                  {i < DESTINATIONS.length - 1 && <span className="text-white/30"> · </span>}
+                </span>
               ))}
-            </div>
-            <div className="text-sm">
-              <p className="font-bold text-ink-950">4.9 из 5</p>
-              <p className="text-ink-500">по отзывам туристов</p>
-            </div>
+            </motion.div>
           </div>
+        </div>
+      </div>
+
+      <div className="content-container-wide">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className="relative z-10 -mt-10 px-2 sm:-mt-12"
+        >
+          <BookingWidget className="mx-auto max-w-4xl" />
         </motion.div>
       </div>
     </section>

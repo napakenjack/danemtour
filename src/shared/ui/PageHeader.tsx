@@ -16,9 +16,7 @@ export function PageHeader({ eyebrow, title, description }: PageHeaderProps) {
       />
       <div className="content-container relative">
         <Reveal>
-          <span className="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.14em] text-brand-600">
-            {eyebrow}
-          </span>
+          <span className="eyebrow mb-3">{eyebrow}</span>
           <h1 className="max-w-2xl text-4xl leading-[1.08] tracking-tight sm:text-5xl">{title}</h1>
           {description && <p className="mt-4 max-w-xl text-lg text-ink-500">{description}</p>}
         </Reveal>

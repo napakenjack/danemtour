@@ -8,11 +8,15 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          'bg-brand-500 text-white shadow-soft hover:bg-brand-600 hover:scale-[1.02] active:scale-[0.98]',
+          'bg-ink-950 text-white shadow-soft hover:bg-brand-600 hover:scale-[1.02] active:scale-[0.98]',
+        light:
+          'bg-white text-ink-950 shadow-soft hover:bg-ink-100 hover:scale-[1.02] active:scale-[0.98]',
         sunset:
           'bg-sunset-500 text-white shadow-soft hover:bg-sunset-600 hover:scale-[1.02] active:scale-[0.98]',
         outline:
-          'border border-ink-200 text-ink-800 bg-white hover:border-brand-400 hover:text-brand-600 hover:scale-[1.02] active:scale-[0.98]',
+          'border border-ink-200 text-ink-800 bg-white hover:border-ink-950 hover:text-ink-950 hover:scale-[1.02] active:scale-[0.98]',
+        outlineLight:
+          'border border-white/35 text-white bg-white/5 backdrop-blur-sm hover:bg-white/15 hover:border-white/60 hover:scale-[1.02] active:scale-[0.98]',
         ghost: 'text-ink-700 hover:bg-ink-100',
         whatsapp:
           'bg-[#25D366] text-white shadow-soft hover:bg-[#1ebe5a] hover:scale-[1.02] active:scale-[0.98]',

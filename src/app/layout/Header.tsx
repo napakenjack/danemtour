@@ -21,8 +21,8 @@ export function Header() {
 
   return (
     <>
-    <header className="sticky top-0 z-50 border-b border-ink-100/80 bg-white/85 backdrop-blur-md">
-      <div className="content-container flex h-18 items-center justify-between py-3">
+    <header className="fixed inset-x-0 top-0 z-50 w-full bg-white">
+      <div className="content-container-wide flex h-20 items-center justify-between py-3">
         <Link to="/" onClick={() => setOpen(false)}>
           <Logo />
         </Link>
@@ -62,7 +62,7 @@ export function Header() {
           type="button"
           aria-label="Открыть меню"
           onClick={() => setOpen(true)}
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-ink-200 text-ink-700 lg:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-ink-200 text-ink-700 transition-colors lg:hidden"
         >
           <Menu size={20} />
         </button>
@@ -79,7 +79,7 @@ export function Header() {
             transition={{ duration: 0.2 }}
             className="fixed inset-0 z-50 flex flex-col bg-ink-950 text-white lg:hidden"
           >
-            <div className="content-container flex h-18 items-center justify-between py-3">
+            <div className="content-container flex h-20 items-center justify-between py-3">
               <Logo dark />
               <button
                 type="button"
@@ -104,7 +104,7 @@ export function Header() {
                     onClick={() => setOpen(false)}
                     className={({ isActive }) =>
                       cn(
-                        'py-2 font-display text-4xl tracking-tight text-white/70 transition-colors hover:text-white',
+                        'py-2 font-display text-4xl uppercase tracking-tight text-white/70 transition-colors hover:text-white',
                         isActive && 'text-brand-400'
                       )
                     }
@@ -123,7 +123,7 @@ export function Header() {
                 </Button>
               </a>
               <Link to="/tours" onClick={() => setOpen(false)}>
-                <Button variant="primary" className="w-full">
+                <Button variant="light" className="w-full">
                   Подобрать тур
                 </Button>
               </Link>

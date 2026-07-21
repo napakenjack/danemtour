@@ -8,51 +8,50 @@ import { Reveal } from '@/shared/ui/Reveal';
 
 export function TourCard({ tour, index = 0 }: { tour: Tour; index?: number }) {
   return (
-    <Reveal delay={Math.min(index, 4) * 0.06}>
+    <Reveal delay={Math.min(index, 4) * 0.06} className="h-full">
       <Link
         to={`/tours/${tour.slug}`}
-        className="group flex h-full flex-col overflow-hidden rounded-3xl border border-ink-100 bg-white shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-soft"
+        className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-white shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-float"
       >
-        <div className="relative aspect-[4/3] overflow-hidden bg-ink-100">
+        <div className="relative aspect-[4/5] overflow-hidden bg-ink-100">
           {tour.image_url && (
             <img
               src={tour.image_url}
               alt={tour.title}
               loading="lazy"
               width={640}
-              height={480}
+              height={800}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           )}
+          <div className="absolute inset-0 bg-gradient-to-t from-ink-950/85 via-ink-950/5 to-transparent" />
+
           <div className="absolute left-3 top-3 flex flex-wrap gap-2">
             {tour.is_hot && <Badge variant="sunset">Горящий тур</Badge>}
             <Badge variant="outline">{segmentLabels[tour.segment] ?? tour.segment}</Badge>
           </div>
+
+          <span className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition-all duration-300 group-hover:bg-white group-hover:text-ink-950">
+            <ArrowUpRight size={18} />
+          </span>
+
+          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-white/70">{tour.country}</p>
+              <h3 className="mt-1 text-lg leading-snug text-white">{tour.title}</h3>
+            </div>
+            {tour.rating && <StarRating rating={tour.rating} className="shrink-0" />}
+          </div>
         </div>
 
-        <div className="flex flex-1 flex-col gap-3 p-5">
-          <div className="flex items-center justify-between text-sm text-ink-500">
-            <span>{tour.country}</span>
-            {tour.rating && <StarRating rating={tour.rating} />}
-          </div>
-
-          <h3 className="text-xl leading-snug text-ink-950">{tour.title}</h3>
-
-          <p className="line-clamp-2 flex-1 text-sm text-ink-500">{tour.description}</p>
-
+        <div className="flex flex-1 items-center justify-between gap-3 px-5 py-4">
           <div className="flex items-center gap-1.5 text-sm text-ink-500">
-            <CalendarDays size={16} />
+            <CalendarDays size={15} />
             {formatDuration(tour.duration_days)}
           </div>
-
-          <div className="mt-1 flex items-center justify-between border-t border-ink-100 pt-4">
-            <div>
-              <p className="text-xs text-ink-400">от</p>
-              <p className="text-lg font-bold text-ink-950">{formatPrice(tour.price_from, tour.currency)}</p>
-            </div>
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 text-brand-600 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-              <ArrowUpRight size={18} />
-            </span>
+          <div className="text-right">
+            <p className="text-[11px] uppercase tracking-wide text-ink-400">от</p>
+            <p className="text-base font-bold text-ink-950">{formatPrice(tour.price_from, tour.currency)}</p>
           </div>
         </div>
       </Link>

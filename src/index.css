@@ -4,18 +4,18 @@
   --font-display: 'Golos Text', system-ui, sans-serif;
   --font-sans: 'Inter', system-ui, sans-serif;
 
-  /* Brand — фиолетовый (фирменный цвет клиента) */
-  --color-brand-50: #faf3ff;
-  --color-brand-100: #f1e0ff;
-  --color-brand-200: #e0bfff;
-  --color-brand-300: #cb93ff;
-  --color-brand-400: #b565ff;
-  --color-brand-500: #aa3bff;
-  --color-brand-600: #8e1ee8;
-  --color-brand-700: #6f17b5;
-  --color-brand-800: #521088;
-  --color-brand-900: #380b5f;
-  --color-brand-950: #230740;
+  /* Brand — тёмно-синий/бирюзовый (цвета лого клиента: navy #0E3661 → teal #09929E). Акцент, не основной фон. */
+  --color-brand-50: #eff8f9;
+  --color-brand-100: #d9eef1;
+  --color-brand-200: #b3dee4;
+  --color-brand-300: #7fc5ce;
+  --color-brand-400: #3fa6b3;
+  --color-brand-500: #0e93a0;
+  --color-brand-600: #0b7986;
+  --color-brand-700: #0d5f6e;
+  --color-brand-800: #123f55;
+  --color-brand-900: #123252;
+  --color-brand-950: #0b2338;
 
   /* Sunset — тёплый акцент для акций/горящих туров */
   --color-sunset-50: #fff3ec;
@@ -29,23 +29,26 @@
   --color-sunset-800: #8f2c0a;
   --color-sunset-900: #5f1e08;
 
-  /* Ink — тёплые нейтральные тона с фиолетовым подтоном */
-  --color-ink-50: #faf9fc;
-  --color-ink-100: #f1eff6;
-  --color-ink-200: #e3e0ec;
-  --color-ink-300: #c9c4d6;
-  --color-ink-400: #9c96af;
-  --color-ink-500: #6f6884;
-  --color-ink-600: #56506a;
-  --color-ink-700: #413c52;
-  --color-ink-800: #2c283a;
-  --color-ink-900: #1a1724;
-  --color-ink-950: #100e17;
+  /* Ink — тёплая бумага на светлом конце, глубокий тёмно-синий на тёмном.
+     Используется и для текста, и для тёмных секций (hero-оверлей, футер). */
+  --color-ink-50: #f7f6f2;
+  --color-ink-100: #eeebe3;
+  --color-ink-200: #dedacf;
+  --color-ink-300: #c2beb0;
+  --color-ink-400: #8f8d89;
+  --color-ink-500: #6b6d74;
+  --color-ink-600: #4e5460;
+  --color-ink-700: #383d4a;
+  --color-ink-800: #232733;
+  --color-ink-900: #161a24;
+  --color-ink-950: #0a0d14;
 
-  --shadow-soft: 0 20px 45px -20px rgba(56, 11, 95, 0.35);
-  --shadow-card: 0 12px 30px -12px rgba(26, 23, 36, 0.18);
+  --shadow-soft: 0 20px 45px -20px rgba(10, 13, 20, 0.35);
+  --shadow-card: 0 12px 30px -12px rgba(10, 13, 20, 0.18);
+  --shadow-float: 0 24px 60px -18px rgba(10, 13, 20, 0.45);
 
   --container-content: 1280px;
+  --container-wide: 1440px;
 }
 
 @layer base {
@@ -54,7 +57,7 @@
   }
 
   body {
-    @apply bg-ink-50 text-ink-700 font-sans antialiased;
+    @apply bg-white text-ink-600 font-sans antialiased;
     font-size: 16px;
   }
 
@@ -62,7 +65,7 @@
   h2,
   h3,
   h4 {
-    @apply font-display text-ink-950;
+    @apply font-display text-ink-900;
   }
 
   ::selection {
@@ -77,6 +80,34 @@
 @layer utilities {
   .content-container {
     @apply mx-auto w-full max-w-(--container-content) px-5 sm:px-8 lg:px-10;
+  }
+
+  .content-container-wide {
+    @apply mx-auto w-full max-w-(--container-wide) px-5 sm:px-8 lg:px-10;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-ink-500;
+  }
+
+  .display-hero {
+    @apply font-display font-extrabold uppercase tracking-tight;
+    letter-spacing: -0.03em;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .snap-x-mandatory {
+    scroll-snap-type: x mandatory;
+  }
+  .snap-center-item {
+    scroll-snap-align: center;
   }
 }
 

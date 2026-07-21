@@ -8,8 +8,8 @@ import { SITE, mailLink, telLink, whatsappLink } from '@/shared/config/site';
 
 export function Footer() {
   return (
-    <footer className="bg-ink-950 text-ink-300">
-      <div className="content-container grid gap-12 py-16 lg:grid-cols-[1.3fr_1fr_1fr_1.2fr]">
+    <footer className="border-t border-white/10 bg-ink-950 text-ink-300">
+      <div className="content-container-wide grid gap-12 py-16 sm:py-20 lg:grid-cols-[1.3fr_1fr_1fr_1.2fr]">
         <div className="space-y-4">
           <Logo dark />
           <p className="max-w-xs text-sm leading-relaxed text-ink-400">
@@ -39,7 +39,7 @@ export function Footer() {
         </div>
 
         <div>
-          <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-white">Разделы</p>
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-white/50">Разделы</p>
           <ul className="space-y-2.5 text-sm">
             {FOOTER_LINKS.map((link) => (
               <li key={link.to}>
@@ -52,7 +52,7 @@ export function Footer() {
         </div>
 
         <div>
-          <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-white">Контакты</p>
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-white/50">Контакты</p>
           <ul className="space-y-3 text-sm">
             <li>
               <a href={telLink()} className="flex items-center gap-2.5 transition-colors hover:text-white">
@@ -74,14 +74,14 @@ export function Footer() {
         </div>
 
         <div>
-          <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-white">Рассылка</p>
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-white/50">Рассылка</p>
           <p className="mb-3 text-sm text-ink-400">Горящие туры и акции — не чаще раза в неделю.</p>
           <NewsletterForm />
         </div>
       </div>
 
       <div className="border-t border-white/10 py-6">
-        <div className="content-container flex flex-col items-center justify-between gap-2 text-xs text-ink-500 sm:flex-row">
+        <div className="content-container-wide flex flex-col items-center justify-between gap-2 text-xs text-ink-500 sm:flex-row">
           <p>© {new Date().getFullYear()} {SITE.name}. Все права защищены.</p>
           <p>Алматы, Казахстан</p>
         </div>
